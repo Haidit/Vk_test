@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Vk_test</string>
+    <string name="no_connection_message">Отсутствует подключение к интернету</string>
+    <string name="search">Поиск</string>
+    <string name="api_error">Ошибка API</string>
+    <string name="no_data_found">Ничего не найдено</string>
+</resources>
