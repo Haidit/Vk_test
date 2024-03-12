@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Тестовое задание VK</string>
+    <string name="no_connection_message">Отсутствует подключение к интернету</string>
+    <string name="search">Поиск на странице</string>
+    <string name="no_data_found">Ничего не найдено</string>
+    <string name="go_to_basket">В корзину</string>
+    <string name="buy">Купить</string>
+    <string name="price">%1$d $</string>
+    <string name="discount">Ваша скидка: -%.2f %%</string>
+    <string name="about_product">О товаре</string>
+    <string name="product_id">Код товара</string>
+    <string name="category">Категория</string>
+    <string name="brand">Бренд</string>
+    <string name="basket_is_unavailable_message">Корзина недоступна</string>
+    <string name="purchases_aren_t_available_message">В данный момент покупки невозможны</string>
+</resources>

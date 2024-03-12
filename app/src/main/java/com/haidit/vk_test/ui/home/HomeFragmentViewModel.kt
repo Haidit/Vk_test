@@ -1,29 +1,30 @@
 package com.haidit.vk_test.ui.home
 
-import android.widget.Toast
-import androidx.lifecycle.ViewModel
 import com.haidit.vk_test.domain.models.Product
-import org.json.JSONArray
+import com.haidit.vk_test.ui.base.BaseViewModel
 import org.json.JSONObject
+import kotlin.math.ceil
 
-class HomeFragmentViewModel : ViewModel() {
+class HomeFragmentViewModel : BaseViewModel() {
 
     val productsList = ArrayList<Product>()
 
-    fun parseData(result: String) {
+    var page = 1
+    var lastPage = 0
+
+    override fun parseData(result: String) {
         val mainObject = JSONObject(result)
         val mainObjectsList = mainObject.getJSONArray("products")
 
-
+        lastPage = ceil(mainObject.getInt("total") / 20.0).toInt()
         for (i in 0 until mainObjectsList.length()) {
             val itemData = mainObjectsList[i] as JSONObject
-            val item = Product(
-                itemData.getInt("id"),
-                itemData.getString("title"),
-                itemData.getString("description"),
-                itemData.getString("thumbnail")
-            )
+            val item = getProduct(itemData)
             productsList.add(item)
         }
+    }
+
+    override fun clearData() {
+        productsList.clear()
     }
 }

@@ -9,23 +9,20 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import com.google.android.material.snackbar.Snackbar
 import com.haidit.vk_test.R
 import com.haidit.vk_test.databinding.FragmentHomeBinding
 import com.haidit.vk_test.domain.adapters.products.ProductOnClickListener
 import com.haidit.vk_test.domain.adapters.products.ProductsAdapter
 import com.haidit.vk_test.domain.models.Product
+import com.haidit.vk_test.ui.base.BaseFragment
 
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
-    private val viewModel: HomeFragmentViewModel by activityViewModels()
-    private lateinit var binding: FragmentHomeBinding
+    override val viewModel: HomeFragmentViewModel by activityViewModels()
+    override lateinit var binding: FragmentHomeBinding
     private lateinit var menuHost: MenuHost
     private lateinit var menuProvider: MenuProvider
     private lateinit var adapter: ProductsAdapter
@@ -38,12 +35,34 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         setMenuProvider()
         menuHost.addMenuProvider(menuProvider)
         setAdapter()
-        makeRequest()
+
+        if (viewModel.productsList.size == 0) {
+            makeRequest(makeUrl(0))
+        }
+        binding.next.setOnClickListener {
+            viewModel.page++
+            if (viewModel.page > viewModel.lastPage) viewModel.page = viewModel.lastPage
+            updateNavigation()
+            makeRequest(makeUrl((viewModel.page - 1) * 20))
+        }
+        binding.prev.setOnClickListener {
+            viewModel.page--
+            if (viewModel.page <= 0) viewModel.page = 1
+            updateNavigation()
+            makeRequest(makeUrl((viewModel.page - 1) * 20))
+        }
+        updateNavigation()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         menuHost.removeMenuProvider(menuProvider)
+    }
+
+    override fun onRequestSuccess(result: String) {
+        super.onRequestSuccess(result)
+        adapter.productsList = viewModel.productsList
+        adapter.notifyDataSetChanged()
     }
 
     private fun setMenuProvider() {
@@ -57,6 +76,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     R.id.actionSearch -> {
                         val searchView: SearchView = menuItem.actionView as SearchView
 
+                        searchView.queryHint = resources.getString(R.string.search)
+
                         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                             override fun onQueryTextSubmit(p0: String?): Boolean {
                                 return false
@@ -67,6 +88,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 return false
                             }
                         })
+
+                        searchView.setOnCloseListener {
+                            adapter.productsList = viewModel.productsList
+                            adapter.notifyDataSetChanged()
+                            true
+                        }
                         true
                     }
 
@@ -76,39 +103,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    private fun setAdapter(){
-        adapter = ProductsAdapter(requireContext(), viewModel.productsList, object : ProductOnClickListener{
-            override fun onClicked(product: Product) {
-                Toast.makeText(context, product.id.toString(), Toast.LENGTH_LONG).show()
-            }
-        })
+    private fun setAdapter() {
+        adapter = ProductsAdapter(
+            requireContext(),
+            viewModel.productsList,
+            object : ProductOnClickListener {
+                override fun onClicked(product: Product) {
+                    val action =
+                        HomeFragmentDirections.actionMainFragmentToDetailedFragment(product.id)
+                    findNavController().navigate(action)
+                }
+            })
 
         val productRV = binding.productsList
         productRV.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         productRV.adapter = adapter
     }
 
-    private fun makeRequest() {
-        if (viewModel.productsList.size != 0) {
-            return
-        }
-        val url = "https://dummyjson.com/products?skip=40&limit=20"
-        val queue = Volley.newRequestQueue(requireContext())
-
-        val request = StringRequest(Request.Method.GET, url, { result ->
-            viewModel.parseData(result)
-            adapter.notifyDataSetChanged()
-        }, { _ ->
-            Snackbar.make(binding.root, getString(R.string.api_error), Snackbar.LENGTH_LONG).show()
-        })
-        queue.add(request)
-    }
+    private fun makeUrl(skip: Int) = "https://dummyjson.com/products?skip=$skip&limit=20"
 
     private fun filter(text: String) {
         val filteredList: ArrayList<Product> = ArrayList()
 
         for (item in viewModel.productsList) {
-            if (item.title.lowercase().contains(text.lowercase()) or item.description.lowercase().contains(text.lowercase())) {
+            if (item.title.lowercase().contains(text.lowercase()) or item.description.lowercase()
+                    .contains(text.lowercase())
+            ) {
                 filteredList.add(item)
             }
         }
@@ -119,4 +139,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             adapter.filterList(filteredList)
         }
     }
+
+    private fun updateNavigation() {
+        with(binding) {
+            thisPage.text = viewModel.page.toString()
+            prev.isClickable = viewModel.page != 1
+            next.isClickable = viewModel.page != viewModel.lastPage
+        }
+    }
+
 }

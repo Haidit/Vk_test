@@ -15,5 +15,9 @@
     <fragment
         android:id="@+id/detailedFragment"
         android:name="com.haidit.vk_test.ui.detailed.DetailedFragment"
-        android:label="DetailedFragment" />
+        android:label="DetailedFragment" >
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
 </navigation>

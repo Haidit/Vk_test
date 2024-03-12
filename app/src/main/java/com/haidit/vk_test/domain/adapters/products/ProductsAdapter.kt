@@ -7,7 +7,7 @@ import com.haidit.vk_test.domain.models.Product
 
 class ProductsAdapter(
     private val context: Context,
-    private var productsList: ArrayList<Product>,
+    var productsList: ArrayList<Product>,
     private val onClickListener: ProductOnClickListener
 ) : RecyclerView.Adapter<ProductsVH>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductsVH {

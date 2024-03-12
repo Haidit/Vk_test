@@ -1,7 +1,16 @@
 <resources>
-    <string name="app_name">Vk_test</string>
-    <string name="no_connection_message">Отсутствует подключение к интернету</string>
-    <string name="search">Поиск</string>
-    <string name="api_error">Ошибка API</string>
-    <string name="no_data_found">Ничего не найдено</string>
+    <string name="app_name">Test VK</string>
+    <string name="no_connection_message">No internet connection</string>
+    <string name="search">Search on page</string>
+    <string name="no_data_found">Nothing was found</string>
+    <string name="go_to_basket">Go to basket</string>
+    <string name="buy">Buy</string>
+    <string name="price">%1$d $</string>
+    <string name="discount">Your discount: -%.2f %%</string>
+    <string name="about_product">About product</string>
+    <string name="product_id">Product\'s id</string>
+    <string name="category">Category</string>
+    <string name="brand">Brand</string>
+    <string name="basket_is_unavailable_message">Basket is unavailable right now</string>
+    <string name="purchases_aren_t_available_message">Purchases aren\'t available right now</string>
 </resources>
