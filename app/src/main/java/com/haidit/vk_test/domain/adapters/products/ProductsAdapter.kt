@@ -20,8 +20,4 @@ class ProductsAdapter(
 
     override fun getItemCount(): Int = productsList.size
 
-    fun filterList(filterList: ArrayList<Product>) {
-        productsList = filterList
-        notifyDataSetChanged()
-    }
 }

@@ -11,6 +11,7 @@ class HomeFragmentViewModel : BaseViewModel() {
 
     var page = 1
     var lastPage = 0
+    var query = ""
 
     override fun parseData(result: String) {
         val mainObject = JSONObject(result)

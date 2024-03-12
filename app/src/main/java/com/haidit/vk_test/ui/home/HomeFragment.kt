@@ -76,24 +76,26 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
                     R.id.actionSearch -> {
                         val searchView: SearchView = menuItem.actionView as SearchView
 
-                        searchView.queryHint = resources.getString(R.string.search)
-
                         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                             override fun onQueryTextSubmit(p0: String?): Boolean {
+                                viewModel.query = p0!!
+                                viewModel.page = 1
+                                makeRequest(makeUrl(0))
+                                updateNavigation()
                                 return false
                             }
 
                             override fun onQueryTextChange(msg: String): Boolean {
-                                filter(msg)
+                                if (msg == "" && viewModel.query != "") {
+                                    viewModel.query = ""
+                                    viewModel.page = 1
+                                    binding.thisPage.text = "1"
+                                    makeRequest(makeUrl(0))
+                                }
                                 return false
                             }
                         })
 
-                        searchView.setOnCloseListener {
-                            adapter.productsList = viewModel.productsList
-                            adapter.notifyDataSetChanged()
-                            true
-                        }
                         true
                     }
 
@@ -104,8 +106,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     private fun setAdapter() {
-        adapter = ProductsAdapter(
-            requireContext(),
+        adapter = ProductsAdapter(requireContext(),
             viewModel.productsList,
             object : ProductOnClickListener {
                 override fun onClicked(product: Product) {
@@ -120,24 +121,13 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         productRV.adapter = adapter
     }
 
-    private fun makeUrl(skip: Int) = "https://dummyjson.com/products?skip=$skip&limit=20"
-
-    private fun filter(text: String) {
-        val filteredList: ArrayList<Product> = ArrayList()
-
-        for (item in viewModel.productsList) {
-            if (item.title.lowercase().contains(text.lowercase()) or item.description.lowercase()
-                    .contains(text.lowercase())
-            ) {
-                filteredList.add(item)
-            }
-        }
-        if (filteredList.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.no_data_found), Toast.LENGTH_SHORT)
-                .show()
+    private fun makeUrl(skip: Int): String {
+        val url = if (viewModel.query == "") {
+            "https://dummyjson.com/products?skip=$skip&limit=20"
         } else {
-            adapter.filterList(filteredList)
+            "https://dummyjson.com/products/search?q=${viewModel.query}&skip=$skip&limit=20"
         }
+        return url
     }
 
     private fun updateNavigation() {
